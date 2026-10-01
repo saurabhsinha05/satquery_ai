@@ -1,0 +1,156 @@
+import { useState, type ReactNode } from 'react';
+import { RotateCcw, ShieldCheck } from 'lucide-react';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { Switch } from '@/components/ui/Switch';
+import { DEMO_USER } from '@/lib/demoData';
+import { useWorkspace } from '@/state/WorkspaceContext';
+import { ViewShell } from './ViewShell';
+
+function Section({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description?: string;
+  children: ReactNode;
+}) {
+  return (
+    <section className="rounded-2xl border border-edge/60 bg-panel/40 p-5">
+      <h3 className="text-[13.5px] font-semibold text-ink">{title}</h3>
+      {description && <p className="mt-1.5 text-[12.5px] text-ink-mute">{description}</p>}
+      <div className="mt-3 divide-y divide-edge/40">{children}</div>
+    </section>
+  );
+}
+
+function Field({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between gap-6 py-3">
+      <span className="text-[13px] text-ink-mute">{label}</span>
+      <span className="truncate text-[13px] text-ink-soft">{value}</span>
+    </div>
+  );
+}
+
+export function SettingsView() {
+  const { resetWorkspace, showToast } = useWorkspace();
+  const [prefs, setPrefs] = useState({
+    motion: true,
+    autoOpenResult: true,
+    showDemoBadges: true,
+    alertUrban: true,
+    alertVegetation: true,
+    alertWater: false,
+  });
+
+  const set = (key: keyof typeof prefs) => (next: boolean) =>
+    setPrefs((p) => ({ ...p, [key]: next }));
+
+  return (
+    <ViewShell
+      title="Settings"
+      description="Preferences for this workspace. Everything here is stored in memory for the session — this build has no account backend."
+      demoNote={false}
+    >
+      <div className="grid gap-4 lg:grid-cols-2">
+        <Section title="Profile" description="Demo identity used across the workspace.">
+          <Field label="Name" value={DEMO_USER.name} />
+          <Field label="Email" value={DEMO_USER.email} />
+          <Field label="Role" value={DEMO_USER.role} />
+          <Field label="Workspace" value={DEMO_USER.org} />
+        </Section>
+
+        <Section title="Appearance" description="SatQuery is dark-first by design.">
+          <Field label="Theme" value="Dark (only theme in this build)" />
+          <Switch
+            label="Motion and transitions"
+            description="Panel reveals, agent step animation and map easing."
+            checked={prefs.motion}
+            onChange={set('motion')}
+          />
+          <Switch
+            label="Show demo badges"
+            description="Keeps “Demo” labels visible on results, metadata and insights."
+            checked={prefs.showDemoBadges}
+            onChange={set('showDemoBadges')}
+            disabled
+          />
+        </Section>
+
+        <Section title="Analysis defaults" description="Applied to new questions.">
+          <Field label="Preferred source" value="Sentinel-2 (optical)" />
+          <Field label="Target resolution" value="10 m / pixel" />
+          <Field label="Default window" value="Last 5 years" />
+          <Switch
+            label="Open the result panel automatically"
+            description="Reveals results as soon as the agent reaches the visualization step."
+            checked={prefs.autoOpenResult}
+            onChange={set('autoOpenResult')}
+          />
+        </Section>
+
+        <Section title="Alerts" description="Which monitoring signals appear in your alert list.">
+          <Switch
+            label="Urban expansion"
+            checked={prefs.alertUrban}
+            onChange={set('alertUrban')}
+          />
+          <Switch
+            label="Vegetation decline"
+            checked={prefs.alertVegetation}
+            onChange={set('alertVegetation')}
+          />
+          <Switch
+            label="Water-body change"
+            checked={prefs.alertWater}
+            onChange={set('alertWater')}
+          />
+        </Section>
+      </div>
+
+      <section className="mt-4 rounded-2xl border border-edge/60 bg-panel/40 p-5">
+        <div className="flex items-start gap-3">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-500/[0.09] text-brand-300">
+            <ShieldCheck className="h-4 w-4" strokeWidth={1.7} />
+          </span>
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <h3 className="text-[13.5px] font-semibold text-ink">Data & privacy</h3>
+              <Badge tone="brand" dot>
+                Nothing leaves your browser
+              </Badge>
+            </div>
+            <p className="mt-2 text-[12.5px] leading-relaxed text-ink-mute text-pretty">
+              This prototype ships without a backend, database, authentication service, model
+              provider or map token. Files you attach are read locally and never uploaded, and every
+              analysis is generated by the local demo engine.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="mt-4 rounded-2xl border border-edge/60 bg-panel/40 p-5">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h3 className="text-[13.5px] font-semibold text-ink">Reset this session</h3>
+            <p className="mt-1.5 text-[12.5px] text-ink-mute">
+              Clears the conversation, the current result and any drawn or attached area.
+            </p>
+          </div>
+          <Button
+            variant="secondary"
+            leftIcon={<RotateCcw className="h-4 w-4" />}
+            onClick={() => {
+              resetWorkspace();
+              showToast('Workspace reset', 'success');
+            }}
+          >
+            Reset workspace
+          </Button>
+        </div>
+      </section>
+    </ViewShell>
+  );
+}

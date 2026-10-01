@@ -1,0 +1,36 @@
+{
+  "name": "satquery-backend",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "SatQuery AI — agentic Earth-observation backend (LangGraph + Copernicus Data Space + Supabase)",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "migrate": "node scripts/migrate.mjs"
+  },
+  "dependencies": {
+    "@langchain/core": "^0.3.40",
+    "@langchain/langgraph": "^0.2.44",
+    "@langchain/openai": "^0.3.17",
+    "@supabase/supabase-js": "^2.47.10",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "langsmith": "^0.2.15",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.10.5",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3",
+    "vitest": "^2.1.8"
+  }
+}
